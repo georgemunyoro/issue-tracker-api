@@ -1,0 +1,96 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Urgency {
+  MINOR
+  NORMAL
+  MAJOR
+  CRITICAL
+  SHOW_STOPPER
+}
+
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  firstname String
+  lastname  String
+  password  String
+  createdAt DateTime  @default(now())
+  Project   Project[]
+  Issue     Issue[]
+  Comment   Comment[]
+}
+
+model Project {
+  id        String    @id @default(uuid())
+  owner     User      @relation(fields: [ownerId], references: [id])
+  ownerId   String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  Board     Board[]
+  Column    Column[]
+  Issue     Issue[]
+  Comment   Comment[]
+}
+
+model Board {
+  id        String   @id @default(uuid())
+  project   Project  @relation(fields: [projectId], references: [id])
+  projectId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Column    Column[]
+  Issue     Issue[]
+}
+
+model Column {
+  id        String   @id @default(uuid())
+  position  Int
+  project   Project  @relation(fields: [projectId], references: [id])
+  projectId String
+  board     Board    @relation(fields: [boardId], references: [id])
+  boardId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Issue     Issue[]
+}
+
+model Issue {
+  id          String    @id @default(uuid())
+  author      User      @relation(fields: [authorId], references: [id])
+  authorId    String
+  title       String
+  description String
+  urgency     Urgency   @default(NORMAL)
+  project     Project   @relation(fields: [projectId], references: [id])
+  projectId   String
+  board       Board     @relation(fields: [boardId], references: [id])
+  boardId     String
+  column      Column    @relation(fields: [columnId], references: [id])
+  columnId    String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  Comment     Comment[]
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
+  contents  String
+  project   Project  @relation(fields: [projectId], references: [id])
+  projectId String
+  issue     Issue    @relation(fields: [issueId], references: [id])
+  issueId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

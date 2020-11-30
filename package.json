@@ -1,0 +1,38 @@
+{
+  "name": "api",
+  "author": "George Munyoro <george.guva@outlook.com>",
+  "version": "0.0.0",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "tsc && node ./dist/index.js",
+    "dev": "nodemon ./dist/index.js",
+    "test:unit": "ENV_FILE=./src/config/.env.test jest",
+    "compile": "tsc"
+  },
+  "dependencies": {
+    "@prisma/client": "^2.12.1",
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "dotenv": "^8.2.0",
+    "express": "~4.16.1",
+    "http-errors": "~1.6.3",
+    "jade": "~1.11.0",
+    "jsonwebtoken": "^8.5.1",
+    "morgan": "~1.9.1",
+    "passport": "^0.4.1",
+    "passport-google-oauth": "^2.0.0"
+  },
+  "devDependencies": {
+    "@prisma/cli": "^2.12.1",
+    "@types/express": "^4.17.9",
+    "@types/jest": "^26.0.15",
+    "@types/jsonwebtoken": "^8.5.0",
+    "@types/node": "^14.14.10",
+    "jest": "^26.6.3",
+    "supertest": "^6.0.1",
+    "ts-jest": "^26.4.4",
+    "ts-node": "^9.0.0",
+    "typescript": "^4.1.2"
+  }
+}
