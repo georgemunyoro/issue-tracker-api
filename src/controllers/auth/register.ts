@@ -1,6 +1,10 @@
 import * as express from "express";
 import { prisma } from "../../db/client";
-import { handleServerError } from "../../utils/errorHandling";
+import {
+  handleRequestError,
+  handleServerError,
+  handleSuccessfulRequest,
+} from "../../utils/requestHandlers";
 import { createHash } from "crypto";
 
 export interface UserRegistrationForm {
@@ -12,11 +16,9 @@ export interface UserRegistrationForm {
   passwordConfirmation?: string;
 }
 
-export const registerUser = async (
-  req: express.Request,
-  res: express.Response
-) => {
+export const registerUser = async (req: express.Request, res: express.Response) => {
   const registrationForm: UserRegistrationForm = req.body;
+
   try {
     registrationForm.password = createHash("sha256")
       .update(registrationForm.password)
@@ -28,20 +30,10 @@ export const registerUser = async (
       data: registrationForm,
     });
 
-    if (!newUser) {
-      return res.status(400).json({
-        success: false,
-        data: {
-          message: "Unable to create user",
-        },
-      });
-    }
+    if (!newUser) return handleRequestError(res, ["unable to create user"]);
 
-    return res.status(200).json({
-      success: true,
-      data: {
-        user: newUser,
-      },
+    return handleSuccessfulRequest(res, {
+      user: newUser,
     });
   } catch (error) {
     return handleServerError(res, [error]);
