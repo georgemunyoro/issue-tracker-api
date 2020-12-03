@@ -6,7 +6,7 @@ export const loggedInUser = async (req: express.Request, res: express.Response) 
   try {
     const [err, data] = await getRequestAuthUser(req);
     if (err) handleServerError(res, [data.message])
-    
+
     handleSuccessfulRequest(res, data);
 
   } catch (error) {
