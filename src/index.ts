@@ -1,13 +1,18 @@
 import express from "express";
+import logger from "morgan";
+import cookieParser from "cookie-parser";
 import { rootRouter } from "./api";
 
-const api = express();
-api.use(express.json());
+const app = express();
 
-api.use("/", rootRouter);
+app.use(express.json());
+app.use(logger("dev"));
+app.use(cookieParser());
+
+app.use("/", rootRouter);
 
 const PORT = process.env.PORT || 5000;
 
-api.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`Server started at port: ${PORT}`);
 });

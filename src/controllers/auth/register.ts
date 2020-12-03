@@ -9,7 +9,7 @@ export interface UserRegistrationForm {
   lastname: string;
   email: string;
   password: string;
-  passwordConfirmation: string;
+  passwordConfirmation?: string;
 }
 
 export const registerUser = async (
@@ -21,6 +21,8 @@ export const registerUser = async (
     registrationForm.password = createHash("sha256")
       .update(registrationForm.password)
       .digest("base64");
+
+    delete registrationForm.passwordConfirmation;
 
     const newUser = await prisma.user.create({
       data: registrationForm,

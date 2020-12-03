@@ -23,8 +23,7 @@ export const loginUser = async (
       });
     }
 
-    const correctPassword =
-      user.password == createHash("sha256").update(password).digest("base64");
+    const correctPassword = user.password == createHash("sha256").update(password).digest("base64");
     if (correctPassword) {
       const token = jwt.sign({ id: user.id }, process.env.SECRET!, {
         expiresIn: "24h",
