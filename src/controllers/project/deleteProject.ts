@@ -1,45 +1,33 @@
 import * as express from "express";
 import { prisma } from "../../db/client";
-import { handleServerError } from "../../utils/errorHandling";
+import {
+  handleRequestError,
+  handleServerError,
+  handleSuccessfulRequest,
+  handleUnauthorizedUser,
+} from "../../utils/requestHandlers";
 import { getRequestAuthUser } from "../../utils/getRequestAuthUser";
 
-export const deleteProject = async (
-  req: express.Request,
-  res: express.Response
-) => {
-  const [isUserAuthorized, author] = await getRequestAuthUser(req);
-
+export const deleteProject = async (req: express.Request, res: express.Response) => {
   try {
-    if (!isUserAuthorized) {
-      return res.status(400).json({
-        success: false,
-        data: {
-          errors: ["User not logged in"],
-        },
-      });
-    }
+    const [isUserAuthorized, authedUser] = await getRequestAuthUser(req);
+    if (!isUserAuthorized) handleUnauthorizedUser(res);
 
-    const deletedProject = await prisma.issue.findUnique({
-      where: {
-        id: req.params.id,
-      },
+    const projectExists = await prisma.project.findUnique({
+      where: { id: req.params.id, name_ownerId: authedUser.id },
     });
 
-    if (!deletedProject) {
-      return res.status(400).json({
-        success: false,
-        data: {
-          errors: ["Unable to delete issue"],
+    if (projectExists) {
+      const deletedProject = await prisma.project.delete({
+        where: {
+          id: req.params.id,
         },
       });
+
+      handleSuccessfulRequest(res, deletedProject);
     }
 
-    return res.status(200).json({
-      success: true,
-      data: {
-        deletedProject,
-      },
-    });
+    handleRequestError(res, ["unable to delete project"]);
   } catch (error) {
     handleServerError(res, [error]);
   }

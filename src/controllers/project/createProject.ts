@@ -1,45 +1,41 @@
 import * as express from "express";
 import { prisma } from "../../db/client";
-import { handleServerError } from "../../utils/errorHandling";
+import {
+  handleRequestError,
+  handleServerError,
+  handleSuccessfulRequest,
+  handleUnauthorizedUser,
+} from "../../utils/requestHandlers";
 import { getRequestAuthUser } from "../../utils/getRequestAuthUser";
 
-export const createProject = async (
-  req: express.Request,
-  res: express.Response
-) => {
-  const [isUserAuthorized, author] = await getRequestAuthUser(req);
-
+export const createProject = async (req: express.Request, res: express.Response) => {
   try {
-    if (!isUserAuthorized) {
-      return res.status(400).json({
-        success: false,
-        data: {
-          errors: ["Unauthorized"],
-        },
-      });
-    }
+    const [isUserAuthorized, { authenticatedUser }] = await getRequestAuthUser(req);
+    if (!isUserAuthorized) return handleUnauthorizedUser(res);
 
-    req.body["authorId"] = author.id;
-
-    const newProject = await prisma.issue.create({
-      data: req.body,
-    });
-
-    if (!newProject) {
-      return res.status(400).json({
-        success: false,
-        data: {
-          errors: ["Unable to create issue"],
-        },
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
+    const succesfullyCreatedProject = await prisma.user.update({
+      where: {
+        id: authenticatedUser.id,
+      },
       data: {
-        project: newProject,
+        projects: {
+          create: [{ name: req.body.name }],
+        },
       },
     });
+
+    if (!succesfullyCreatedProject) return handleRequestError(res, ["unable to create project"]);
+
+    return handleSuccessfulRequest(
+      res,
+      {
+        project: {
+          name: req.body.name,
+          owner: authenticatedUser,
+        },
+      },
+      201
+    );
   } catch (error) {
     handleServerError(res, [error]);
   }

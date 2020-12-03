@@ -1,5 +1,6 @@
 import * as express from "express";
 import { prisma } from "../../db/client";
+import { Issue } from "@prisma/client";
 import {
   handleRequestError,
   handleServerError,
@@ -8,22 +9,19 @@ import {
 } from "../../utils/requestHandlers";
 import { getRequestAuthUser } from "../../utils/getRequestAuthUser";
 
-export const updateProject = async (req: express.Request, res: express.Response) => {
+export const getIssue = async (req: express.Request, res: express.Response) => {
   try {
     const [isUserAuthorized] = await getRequestAuthUser(req);
     if (!isUserAuthorized) handleUnauthorizedUser(res);
 
-    const updatedProjct = await prisma.project.update({
-      where: {
-        id: req.params.id,
-      },
-      data: req.body,
+    const issue = await prisma.issue.findUnique({
+      where: req.params,
     });
 
-    if (!updatedProjct) handleRequestError(res, ["Unable to update project"]);
+    if (!issue) handleRequestError(res, ["unable to retrieve issue"]);
 
     return handleSuccessfulRequest(res, {
-      project: updatedProjct,
+      issue,
     });
   } catch (error) {
     handleServerError(res, [error]);

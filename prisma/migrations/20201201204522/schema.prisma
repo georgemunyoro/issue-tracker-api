@@ -3,7 +3,7 @@
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url = "***"
 }
 
 generator client {
@@ -46,22 +46,17 @@ model Project {
 }
 
 model Board {
-  id          String   @id @default(uuid())
-  name        String
-  description String
-  project     Project  @relation(fields: [projectId], references: [id])
-  projectId   String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  columns     Column[]
-  issues      Issue[]
-
-  @@unique([name, projectId])
+  id        String   @id @default(uuid())
+  project   Project  @relation(fields: [projectId], references: [id])
+  projectId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  columns   Column[]
+  issues    Issue[]
 }
 
 model Column {
   id        String   @id @default(uuid())
-  name      String
   position  Int
   project   Project  @relation(fields: [projectId], references: [id])
   projectId String
@@ -70,8 +65,6 @@ model Column {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   issues    Issue[]
-
-  @@unique([name, boardId])
 }
 
 model Issue {

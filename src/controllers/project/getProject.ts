@@ -8,22 +8,21 @@ import {
 } from "../../utils/requestHandlers";
 import { getRequestAuthUser } from "../../utils/getRequestAuthUser";
 
-export const updateProject = async (req: express.Request, res: express.Response) => {
+export const getProject = async (req: express.Request, res: express.Response) => {
   try {
     const [isUserAuthorized] = await getRequestAuthUser(req);
     if (!isUserAuthorized) handleUnauthorizedUser(res);
 
-    const updatedProjct = await prisma.project.update({
+    const requestedProject = await prisma.project.findUnique({
       where: {
         id: req.params.id,
       },
-      data: req.body,
     });
 
-    if (!updatedProjct) handleRequestError(res, ["Unable to update project"]);
+    if (!requestedProject) handleRequestError(res, ["Unable to retrieve requested project"]);
 
-    return handleSuccessfulRequest(res, {
-      project: updatedProjct,
+    handleSuccessfulRequest(res, {
+      project: requestedProject,
     });
   } catch (error) {
     handleServerError(res, [error]);

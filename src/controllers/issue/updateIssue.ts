@@ -1,24 +1,19 @@
 import * as express from "express";
 import { prisma } from "../../db/client";
-import { handleServerError } from "../../utils/errorHandling";
+import {
+  handleRequestError,
+  handleServerError,
+  handleSuccessfulRequest,
+  handleUnauthorizedUser,
+} from "../../utils/requestHandlers";
 import { getRequestAuthUser } from "../../utils/getRequestAuthUser";
 
-export const updateIssue = async (
-  req: express.Request,
-  res: express.Response
-) => {
+export const updateIssue = async (req: express.Request, res: express.Response) => {
   const [isUserAuthorized, author] = await getRequestAuthUser(req);
   const issueId = req.params.issueId;
 
   try {
-    if (!isUserAuthorized) {
-      return res.status(400).json({
-        success: false,
-        data: {
-          errors: ["Unauthorized"],
-        },
-      });
-    }
+    if (!isUserAuthorized) handleUnauthorizedUser(res);
 
     const updatedIssue = await prisma.issue.update({
       where: {
@@ -27,20 +22,10 @@ export const updateIssue = async (
       data: req.body,
     });
 
-    if (!updatedIssue) {
-      return res.status(400).json({
-        success: false,
-        data: {
-          errors: ["Unable to create issue"],
-        },
-      });
-    }
+    if (!updatedIssue) handleRequestError(res, ["unable to update issue"]);
 
-    return res.status(200).json({
-      success: true,
-      data: {
-        issue: updatedIssue,
-      },
+    return handleSuccessfulRequest(res, {
+      issue: updatedIssue,
     });
   } catch (error) {
     handleServerError(res, [error]);

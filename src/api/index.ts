@@ -6,12 +6,14 @@ dotenv.config();
 import authRouter from "./authRouter";
 import commentRouter from "./commentRouter";
 import issueRouter from "./issueRouter";
+import projectRouter from "./projectRouter";
 
 export const rootRouter = express.Router();
 
 rootRouter.use("/auth", authRouter);
-rootRouter.use("/issue", issueRouter);
-rootRouter.use("/comment", commentRouter);
+rootRouter.use("/issues", issueRouter);
+rootRouter.use("/comments", commentRouter);
+rootRouter.use("/projects", projectRouter);
 
 rootRouter.get("/", (req: express.Request, res: express.Response) => {
   res.status(200).json({

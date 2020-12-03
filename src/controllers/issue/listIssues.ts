@@ -1,45 +1,27 @@
 import * as express from "express";
 import { prisma } from "../../db/client";
 import { Issue } from "@prisma/client";
-import { handleServerError } from "../../utils/errorHandling";
+import {
+  handleRequestError,
+  handleServerError,
+  handleSuccessfulRequest,
+  handleUnauthorizedUser,
+} from "../../utils/requestHandlers";
 import { getRequestAuthUser } from "../../utils/getRequestAuthUser";
 
-export const listIssues = async (
-  req: express.Request,
-  res: express.Response
-) => {
-  const [isUserAuthorized, author] = await getRequestAuthUser(req);
-
+export const listIssues = async (req: express.Request, res: express.Response) => {
   try {
-    if (!isUserAuthorized) {
-      return res.status(400).json({
-        success: false,
-        data: {
-          errors: ["User not logged in"],
-        },
-      });
-    }
+    const [isUserAuthorized, author] = await getRequestAuthUser(req);
+    if (!isUserAuthorized) handleUnauthorizedUser(res);
 
     const issues = await prisma.issue.findMany({
       where: req.params,
     });
 
-    if (!issues) {
-      return res.status(400).json({
-        success: false,
-        data: {
-          errors: ["Unable to delete issue"],
-        },
-      });
-    }
+    if (!issues) handleRequestError(res, ["unable to retrieve issues"]);
 
-    issues.filter((issue: Issue) => issue.authorId == author.id);
-
-    return res.status(200).json({
-      success: true,
-      data: {
-        issues,
-      },
+    return handleSuccessfulRequest(res, {
+      issues: issues.filter((issue: Issue) => issue.authorId == author.id),
     });
   } catch (error) {
     handleServerError(res, [error]);
