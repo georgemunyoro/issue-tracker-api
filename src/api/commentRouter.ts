@@ -7,4 +7,3 @@ const commentRouter = express.Router();
 commentRouter.post("/:issueId", commentOnIssue);
 
 export default commentRouter;
-
