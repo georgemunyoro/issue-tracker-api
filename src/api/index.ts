@@ -25,4 +25,3 @@ rootRouter.get("/", (req: express.Request, res: express.Response) => {
     },
   });
 });
-
