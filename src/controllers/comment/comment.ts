@@ -1,6 +1,6 @@
 import * as express from "express";
 import { prisma } from "../../db/client";
-import { handleServerError } from "../../utils/errorHandling";
+import { handleServerError } from "../../utils/requestHandlers";
 import { getRequestAuthUser } from "../../utils/getRequestAuthUser";
 
 export const commentOnIssue = async (
