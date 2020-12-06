@@ -25,6 +25,19 @@ export const createIssue = async (req: express.Request, res: express.Response) =
       },
     });
 
+	await prisma.project.update({
+	  where: {
+		id: project
+	  },
+	  data: {
+		issues: {
+		  connect: {
+			id: newIssue.id
+		  }
+		}
+	  }
+	})
+
     if (!newIssue) handleRequestError(res, ["unable to create issue"]);
 
     return handleSuccessfulRequest(
