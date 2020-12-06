@@ -1,6 +1,5 @@
 import * as express from "express";
 import { prisma } from "../../db/client";
-import { Board } from "@prisma/client";
 import {
   handleRequestError,
   handleServerError,
