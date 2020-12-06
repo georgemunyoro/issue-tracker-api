@@ -1,7 +1,7 @@
 import * as express from "express";
 import { prisma } from "../../db/client";
-import { createHash } from "crypto";
 import jwt from "jsonwebtoken";
+import * as bcrypt from "bcrypt";
 import {
   handleRequestError,
   handleServerError,
@@ -24,13 +24,10 @@ export const loginUser = async (req: express.Request, res: express.Response) => 
 
     if (!user) return handleRequestError(res, ["unable to login"]);
 
-    const correctPassword =
-      user.password ==
-      createHash("sha256")
-        .update(password)
-        .digest("base64");
-    if (!correctPassword) {
-      handleRequestError(res, ["incorrect credentials"]);
+    const isPasswordCorrect = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordCorrect) {
+      return handleRequestError(res, ["unable to login"]);
     }
 
     const token = jwt.sign({ id: user.id }, process.env.SECRET!, { expiresIn: "24h" });

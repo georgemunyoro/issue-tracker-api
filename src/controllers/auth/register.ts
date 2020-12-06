@@ -5,7 +5,7 @@ import {
   handleServerError,
   handleSuccessfulRequest,
 } from "../../utils/requestHandlers";
-import { createHash } from "crypto";
+import * as bcrypt from "bcrypt";
 
 export interface UserRegistrationForm {
   username: string;
@@ -17,12 +17,14 @@ export interface UserRegistrationForm {
 }
 
 export const registerUser = async (req: express.Request, res: express.Response) => {
-  const registrationForm: UserRegistrationForm = req.body;
-
   try {
-    registrationForm.password = createHash("sha256")
-      .update(registrationForm.password)
-      .digest("base64");
+    const registrationForm: UserRegistrationForm = req.body;
+
+    if (registrationForm.password != registrationForm.passwordConfirmation) {
+      return handleRequestError(res, ["unable to create user"]);
+    }
+
+    registrationForm.password = await bcrypt.hash(registrationForm.password, 10);
 
     delete registrationForm.passwordConfirmation;
 
