@@ -23,11 +23,12 @@ model User {
   email     String    @unique
   firstname String
   lastname  String
+  username  String
   password  String
   createdAt DateTime  @default(now())
-  Project   Project[]
-  Issue     Issue[]
-  Comment   Comment[]
+  projects  Project[]
+  issues    Issue[]
+  comments  Comment[]
 }
 
 model Project {
@@ -37,34 +38,41 @@ model Project {
   ownerId   String
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  Board     Board[]
-  Column    Column[]
-  Issue     Issue[]
-  Comment   Comment[]
+  boards    Board[]
+  columns   Column[]
+  issues    Issue[]
+  comments  Comment[]
 
   @@unique([name, ownerId])
 }
 
 model Board {
-  id        String   @id @default(uuid())
-  project   Project  @relation(fields: [projectId], references: [id])
-  projectId String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  Column    Column[]
-  Issue     Issue[]
+  id           String   @id @default(uuid())
+  name         String
+  description  String
+  project      Project  @relation(fields: [projectId], references: [id])
+  projectId    String
+  columnLayout Json?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  columns      Column[]
+  issues       Issue[]
+
+  @@unique([name, projectId])
 }
 
 model Column {
   id        String   @id @default(uuid())
-  position  Int
-  project   Project  @relation(fields: [projectId], references: [id])
-  projectId String
+  name      String
   board     Board    @relation(fields: [boardId], references: [id])
   boardId   String
+  project 	Project? @relation(fields: [projectId], references: [id])
+  projectId String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  Issue     Issue[]
+  issues    Issue[]
+
+  @@unique([name, boardId])
 }
 
 model Issue {
@@ -74,15 +82,15 @@ model Issue {
   title       String
   description String
   urgency     Urgency   @default(NORMAL)
-  project     Project   @relation(fields: [projectId], references: [id])
-  projectId   String
-  board       Board     @relation(fields: [boardId], references: [id])
-  boardId     String
+  project     Project?   @relation(fields: [projectId], references: [id])
+  projectId   String?
+  board       Board?     @relation(fields: [boardId], references: [id])
+  boardId     String?
   column      Column    @relation(fields: [columnId], references: [id])
   columnId    String
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  Comment     Comment[]
+  comments    Comment[]
 }
 
 model Comment {
@@ -90,8 +98,8 @@ model Comment {
   author    User     @relation(fields: [authorId], references: [id])
   authorId  String
   contents  String
-  project   Project  @relation(fields: [projectId], references: [id])
-  projectId String
+  project   Project?  @relation(fields: [projectId], references: [id])
+  projectId String?
   issue     Issue    @relation(fields: [issueId], references: [id])
   issueId   String
   createdAt DateTime @default(now())
