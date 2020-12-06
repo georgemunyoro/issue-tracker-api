@@ -8,19 +8,19 @@ import {
 } from "../../utils/requestHandlers";
 import { getRequestAuthUser } from "../../utils/getRequestAuthUser";
 
-export const getBoard = async (req: express.Request, res: express.Response) => {
+export const listColumns = async (req: express.Request, res: express.Response) => {
   try {
     const [isUserAuthorized] = await getRequestAuthUser(req);
     if (!isUserAuthorized) handleUnauthorizedUser(res);
 
-    const board = await prisma.board.findUnique({
-      where: req.params,
+    const requestedColumns = await prisma.column.findMany({
+      where: req.body,
     });
 
-    if (!board) handleRequestError(res, ["unable to retrieve board"]);
+    if (!requestedColumns) handleRequestError(res, ["unable to retrieve columns"]);
 
     return handleSuccessfulRequest(res, {
-      board,
+      columns: requestedColumns,
     });
   } catch (error) {
     handleServerError(res, [error]);

@@ -23,6 +23,7 @@ model User {
   email     String    @unique
   firstname String
   lastname  String
+  username  String
   password  String
   createdAt DateTime  @default(now())
   projects  Project[]
@@ -46,15 +47,16 @@ model Project {
 }
 
 model Board {
-  id          String   @id @default(uuid())
-  name        String
-  description String
-  project     Project  @relation(fields: [projectId], references: [id])
-  projectId   String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  columns     Column[]
-  issues      Issue[]
+  id           String   @id @default(uuid())
+  name         String
+  description  String
+  project      Project  @relation(fields: [projectId], references: [id])
+  projectId    String
+  columnLayout Json? 	@default("[]")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  columns      Column[]
+  issues       Issue[]
 
   @@unique([name, projectId])
 }
@@ -62,11 +64,10 @@ model Board {
 model Column {
   id        String   @id @default(uuid())
   name      String
-  position  Int
-  project   Project  @relation(fields: [projectId], references: [id])
-  projectId String
   board     Board    @relation(fields: [boardId], references: [id])
   boardId   String
+  project 	Project? @relation(fields: [projectId], references: [id])
+  projectId String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   issues    Issue[]
@@ -81,10 +82,10 @@ model Issue {
   title       String
   description String
   urgency     Urgency   @default(NORMAL)
-  project     Project   @relation(fields: [projectId], references: [id])
-  projectId   String
-  board       Board     @relation(fields: [boardId], references: [id])
-  boardId     String
+  project     Project?   @relation(fields: [projectId], references: [id])
+  projectId   String?
+  board       Board?     @relation(fields: [boardId], references: [id])
+  boardId     String?
   column      Column    @relation(fields: [columnId], references: [id])
   columnId    String
   createdAt   DateTime  @default(now())
@@ -97,8 +98,8 @@ model Comment {
   author    User     @relation(fields: [authorId], references: [id])
   authorId  String
   contents  String
-  project   Project  @relation(fields: [projectId], references: [id])
-  projectId String
+  project   Project?  @relation(fields: [projectId], references: [id])
+  projectId String?
   issue     Issue    @relation(fields: [issueId], references: [id])
   issueId   String
   createdAt DateTime @default(now())

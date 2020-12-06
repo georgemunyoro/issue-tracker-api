@@ -8,19 +8,22 @@ import {
 } from "../../utils/requestHandlers";
 import { getRequestAuthUser } from "../../utils/getRequestAuthUser";
 
-export const getBoard = async (req: express.Request, res: express.Response) => {
+export const updateColumn = async (req: express.Request, res: express.Response) => {
   try {
     const [isUserAuthorized] = await getRequestAuthUser(req);
     if (!isUserAuthorized) handleUnauthorizedUser(res);
 
-    const board = await prisma.board.findUnique({
-      where: req.params,
+    const updatedProject = await prisma.column.update({
+      where: {
+        id: req.params.id,
+      },
+      data: req.body,
     });
 
-    if (!board) handleRequestError(res, ["unable to retrieve board"]);
+    if (!updatedProject) handleRequestError(res, ["Unable to update column"]);
 
     return handleSuccessfulRequest(res, {
-      board,
+      column: updatedProject,
     });
   } catch (error) {
     handleServerError(res, [error]);
