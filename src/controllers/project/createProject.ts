@@ -22,6 +22,9 @@ export const createProject = async (req: express.Request, res: express.Response)
           create: [{ name: req.body.name }],
         },
       },
+      include: {
+        projects: true,
+      },
     });
 
     if (!succesfullyCreatedProject) return handleRequestError(res, ["unable to create project"]);
@@ -29,12 +32,11 @@ export const createProject = async (req: express.Request, res: express.Response)
     return handleSuccessfulRequest(
       res,
       {
-        project: {
-          name: req.body.name,
-          owner: authenticatedUser,
-        },
+        project: succesfullyCreatedProject.projects.filter(
+          (project: any) => project.name == req.body.name,
+        )[0],
       },
-      201
+      201,
     );
   } catch (error) {
     handleServerError(res, [error]);
