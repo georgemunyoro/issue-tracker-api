@@ -4,13 +4,7 @@
     {
       "tag": "CreateEnum",
       "enum": "Urgency",
-      "values": [
-        "MINOR",
-        "NORMAL",
-        "MAJOR",
-        "CRITICAL",
-        "SHOW_STOPPER"
-      ]
+      "values": ["MINOR", "NORMAL", "MAJOR", "CRITICAL", "SHOW_STOPPER"]
     },
     {
       "tag": "CreateSource",
