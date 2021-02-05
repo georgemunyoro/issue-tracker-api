@@ -25,7 +25,6 @@ export const loginUser = async (req: express.Request, res: express.Response) => 
     if (!user) return handleRequestError(res, ["unable to login"]);
 
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
-
     if (!isPasswordCorrect) {
       return handleRequestError(res, ["unable to login"]);
     }
